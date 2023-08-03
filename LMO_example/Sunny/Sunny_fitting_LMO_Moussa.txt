@@ -1,0 +1,25 @@
+The goal of this exercise is to fit experimental dispersion data from a magnetically ordered system with linear spin-wave theory analytically.  The guiding principle of writing the code was to make the syntax user-friendly and extensible.  It is likely that for the September workshop, a different philosophy of writing the code that uses less helper-abstractions may be more appropriate.  I started with a "stream-of-conciousness" style monolithic code ("LMO_Sunnyl_load_and_plot_data_07302023.jl"), which I then broke down into sections as per the proposed organizational work-flow scheme.  While these examples are only for fitting the dispersion, there are many common abstraction needs and workflows for the problem of fitting S(Q,hw).
+
+REFERENCE: https://journals.aps.org/prb/abstract/10.1103/PhysRevB.54.15149
+
+Assets:
+1)	Magnetic structure - The magnetic structure is an A-type antiferromagnet, having the spins along the b-axis of the crystallographic cell.
+2)	Experimental data - The data in this exercise were digitized from the reference and consists of scans along three different directions.
+3)	Model Hamiltonian - The proposed model is to have two exchanges (Jab in the basal plane and Jc between planes) and one single-ion anisotropy of the lowest order (D).
+Workflow:
+1)	Input magnetic structure - "1_LMO_Sunny_InputMagneticStructure.jl" Here, for LSWT the user knows the magnetic structure.  So a function "set_initial_spin_configuration!" was made to allow a by-hand forcing of the spin directions.  The user is introduced to Crystal, subcrystal, and System.
+2)	Check magnetic structure - "2_LMO_Sunny_CheckMagneticStructure.jl" "plot_spins" could use a few tweaks; show axes, for example.  As I have been running code in VSCode, the inline=false is needed for the plot to make a new window that is interactive.
+3)	Input model Hamiltonian - "3_LMO_Sunny_InputModelHamiltonian.jl" Here a "set_system_params!" is needed to update the model.  At this point, I have many software engineering questions: for example, perhaps it would be easier to interact with Sunny if a type:
+struct SunnyParameter
+    value::Float64
+    matrix::Matrix{Float64}
+    system_component::Union{Bond, Int}  # this can be either a Bond or an Int
+end
+
+was introduced.  Here, the same style of keeping parameters in a dictionary as before is used.  The SunnyModel type is introduced.  I made a function that gets the mode with the maximum intensity called "sunny_dispersion"; at one point I was sorting intensities to allow the potential for mode selection but I paused that idea.  The user is introduced to SpinWaveTheory type.  use "view_crystal" to visualize the bonds.  I *think* Matthew Wilson modified to show the axis, but right now I don't see any label sprites.
+
+4)	Check model Hamiltonian - "4_LMO_Sunny_CheckModelHamiltonian.jl" - play around with parameters and the generated dispersion.
+5)	Load experimental data - "5_LMO_Sunny_LoadExperimentalData.jl" - this step is identical to the analytical version.
+6)	Check experimental data - "6_LMO_Sunny_CheckExperimentalData.jl" - this step is identical to the analytical version.
+7)	Optimize model using experimental data - "7_LMO_Sunny_OptimizeModelFromExperiment.jl" - very similar syntax to the analytical version.  Takes 30 seconds to optimize on my clunker desktop for the "guessed" initial parameters.
+8)	Check optimized model - "8_LMO_Sunny_CheckOptimizedModelFromExperiment.jl" - Right now no logic in map mesh generation to make sure that the parameters are OK for the ground-state.  Same comments as analytical document that I need to double-check the logic for errors and to look at numerical Hessian.
