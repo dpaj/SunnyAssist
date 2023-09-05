@@ -1,9 +1,9 @@
 using Sunny, Optim, StaticArrays, DataFrames, CSV, LinearAlgebra, Plots, GLM, Statistics, StatsBase, Printf, GLMakie
 
 if Sys.iswindows()
-    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\"
+    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\SunnyAssist\\"
 else
-    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/"
+    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/SunnyAssist/"
 end
 
 include(joinpath(SunnyAssist_path, "SunnyAssist.jl"))
@@ -44,7 +44,12 @@ cryst = subcrystal(LMO, "Mn")
 
 sys = System(cryst, (1,1,1), [SpinInfo(1,S=2, g=2)], :dipole)
 
-original_spins = [[0, -1, 0], [0, -1, 0], [0, 1, 0], [0, 1, 0]]
+original_spins = Array{SVector{3, Float64}, 4}(undef, 1, 1, 1, 4)
+original_spins[1, 1, 1, 1] = SVector(0, -2, 0)
+original_spins[1, 1, 1, 2] = SVector(0, -2, 0)
+original_spins[1, 1, 1, 3] = SVector(0.0, 2.0, 0.0)
+original_spins[1, 1, 1, 4] = SVector(0.0, 2.0, 0.0)
+
 set_initial_spin_configuration!(sys, original_spins)
 
 function set_system_params!(sys::System, parameters::Dict{String, Float64})

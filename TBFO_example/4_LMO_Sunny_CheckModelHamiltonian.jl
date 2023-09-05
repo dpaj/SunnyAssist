@@ -1,9 +1,9 @@
 using Sunny, Optim, StaticArrays, DataFrames, CSV, LinearAlgebra, Plots, GLM, Statistics, StatsBase, Printf, GLMakie
 
 if Sys.iswindows()
-    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\SunnyAssist\\"
+    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\"
 else
-    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/SunnyAssist/"
+    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/"
 end
 
 include(joinpath(SunnyAssist_path, "SunnyAssist.jl"))
@@ -29,17 +29,10 @@ cryst = subcrystal(LMO, "Mn")
 
 sys = System(cryst, (1,1,1), [SpinInfo(1,S=2, g=2)], :dipole)
 
-original_spins = Array{SVector{3, Float64}, 4}(undef, 1, 1, 1, 4)
-original_spins[1, 1, 1, 1] = SVector(0, -2, 0)
-original_spins[1, 1, 1, 2] = SVector(0, -2, 0)
-original_spins[1, 1, 1, 3] = SVector(0.0, 2.0, 0.0)
-original_spins[1, 1, 1, 4] = SVector(0.0, 2.0, 0.0)
-
+original_spins = [[0, -1, 0], [0, -1, 0], [0, 1, 0], [0, 1, 0]]
 set_initial_spin_configuration!(sys, original_spins)
 
 print_symmetry_table(cryst, 5.0)
-
-display(view_crystal(cryst, 5.0))
 
 function set_system_params!(sys::System, parameters::Dict{String, Float64})
     S = spin_operators(sys, 1)
@@ -55,10 +48,18 @@ function set_system_params!(sys::System, parameters::Dict{String, Float64})
     set_onsite_coupling!(sys, parameters["D"]*S[2]^2, 1)
 end
 
-sunny_parameters = Dict("Jab" => -0.6, "Jc" => 0.3, "D" => -0.5, "S" => 2.0)
+my_parameters = Dict("Jab" => -0.6, "Jc" => 0.7, "D" => -0.5, "S" => 2.0)
 
 swt = SpinWaveTheory(sys)
 
-sunny_model = SunnyModel("Sunny", sunny_parameters, sunny_dispersion, sys, swt)
+sunny_model = SunnyModel("Sunny", my_parameters, sunny_dispersion, sys, swt)
 
 set_system_params!(sys, sunny_model.parameters.values)
+
+q_L = Q_maker(100, [0, 0, 0], [0, 0, 1])
+q_H = Q_maker(100, [0, 0, 0], [1, 0, 0])
+empty_experiment = empty_experiment_group([q_L, q_H])
+
+update_dispersion_and_residuals!(empty_experiment, sunny_model, true)
+
+plot_model!(empty_experiment, sunny_model)

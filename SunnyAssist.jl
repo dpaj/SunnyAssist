@@ -526,12 +526,27 @@ function plot_all_heatmaps(heatmaps::Dict{Tuple{String, String}, Array{Float64, 
     end
 end
 
-function set_initial_spin_configuration!(sys::System, original_spins::Vector{Vector{Int}})
-    # Set the spins
-    for i in 1:length(sys.dipoles)
-        set_dipole!(sys, original_spins[i], CartesianIndex(1, 1, 1, i))# Cartesian indices for the spins
+function set_initial_spin_configuration!(sys::System, spins)
+    # Get the size of the dipoles array
+    dims = size(sys.dipoles)
+
+    # Check if the dimensions of spins match those of sys.dipoles
+    if size(spins) != dims
+        error("The dimensions of the spins array do not match the dimensions of sys.dipoles")
+    end
+    
+    # Nested loops to iterate over each dimension
+    for i in 1:dims[1]
+        for j in 1:dims[2]
+            for k in 1:dims[3]
+                for l in 1:dims[4]
+                    set_dipole!(sys, spins[i, j, k, l], CartesianIndex(i, j, k, l))
+                end
+            end
+        end
     end
 end
+
 
 function set_system_params!(sys::System, parameters::Dict{String, Float64})
     S = spin_operators(sys, 1)

@@ -2,9 +2,9 @@ using Sunny, Optim, StaticArrays, DataFrames, CSV, LinearAlgebra, Plots, GLM, St
 
 
 if Sys.iswindows()
-    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\SunnyAssist\\"
+    SunnyAssist_path = "C:\\Users\\vdp\\Dropbox (ORNL)\\Sunny\\"
 else
-    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/SunnyAssist/"
+    SunnyAssist_path = "/home/vdp/Dropbox (ORNL)/Sunny/"
 end
 
 include(joinpath(SunnyAssist_path, "SunnyAssist.jl"))
