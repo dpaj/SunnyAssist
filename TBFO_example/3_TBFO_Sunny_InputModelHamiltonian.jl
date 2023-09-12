@@ -41,25 +41,37 @@ set_initial_spin_configuration!(sys, original_spins)
 
 display(view_crystal(magxtal, 5.0))
 
-print_symmetry_table(magxtal)
-
-#=
+print_symmetry_table(magxtal, 5.0)
 
 function set_system_params!(sys::System, parameters::Dict{String, Float64})
-    S = spin_operators(sys, 1)
+    S_Fe1 = spin_operators(sys, 1)
+    S_Fe2 = spin_operators(sys, 3)
 
-    set_exchange!(sys, [parameters["Jab"]*2.0   0.0   0.0;
-                        0.0   parameters["Jab"]*2.0   0.0;
-                        0.0   0.0   parameters["Jab"]*2.0], Bond(2,1,[0,0,0]))
+    set_exchange!(sys, [parameters["JcS"]   0.0   0.0;
+                        0.0   parameters["JcS"]   0.0;
+                        0.0   0.0   parameters["JcS"]], Bond(1, 4, [0, 0, 0]))
 
-    set_exchange!(sys, [parameters["Jc"]*2.0   0.0   0.0;
-                        0.0   parameters["Jc"]*2.0   0.0;
-                        0.0   0.0   parameters["Jc"]*2.0], Bond(1,3,[0,0,0]))
+    set_exchange!(sys, [parameters["Jb"]   0.0   0.0;
+                        0.0   parameters["Jb"]   0.0;
+                        0.0   0.0   parameters["Jb"]], Bond(1, 1, [0, 1, 0]))
 
-    set_onsite_coupling!(sys, parameters["D"]*S[2]^2, 1)
+    set_exchange!(sys, [parameters["Jb"]   0.0   0.0;
+                        0.0   parameters["Jb"]   0.0;
+                        0.0   0.0   parameters["Jb"]], Bond(3, 3, [0, 1, 0]))
+
+    set_exchange!(sys, [parameters["JcL"]   0.0   0.0;
+                        0.0   parameters["JcL"]   0.0;
+                        0.0   0.0   parameters["JcL"]], Bond(2, 3, [0, 0, 1]))
+
+    set_exchange!(sys, [parameters["Ja"]   0.0   0.0;
+                        0.0   parameters["Ja"]   0.0;
+                        0.0   0.0   parameters["Ja"]], Bond(1, 3, [0, 0, 0]))
+
+    set_onsite_coupling!(sys, parameters["Db"]*S_Fe1[2]^2, 1)
+    set_onsite_coupling!(sys, parameters["Db"]*S_Fe2[2]^2, 1)
 end
 
-sunny_parameters = Dict("Ja" => -3.17, "Jb" => -7.31, "JcS" => -0.57, "Jc" => -5.11, "Db" => -0.47)
+sunny_parameters = Dict("Ja" => -3.17, "Jb" => -7.31, "JcS" => -0.57, "JcL" => -5.11, "Db" => -0.47)
 
 swt = SpinWaveTheory(sys)
 
@@ -67,4 +79,3 @@ sunny_model = SunnyModel("Sunny", sunny_parameters, sunny_dispersion, sys, swt)
 
 set_system_params!(sys, sunny_model.parameters.values)
 
-=#
